@@ -1,12 +1,5 @@
 <div align="center">
 
-```
-+===================================================+
-|          🚀 Amazon Q - MCP Manager 🚀             |
-|      Web Dashboard for MCP Server Management      |
-+===================================================+
-```
-
 # Amazon Q - MCP Manager Dashboard
 
 </div>
