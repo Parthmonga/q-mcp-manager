@@ -107,6 +107,8 @@ The dashboard enables you to:
 ```bash
 ./start.sh start --background
 ```
+Make sure start.sh and server.sh scripts have executable permissions(chmod +x)
+
 ✅ **Server starts + Dashboard opens + Terminal is free!**
 
 ### 🎛️ **Alternative Methods**
