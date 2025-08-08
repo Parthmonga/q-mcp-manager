@@ -1,0 +1,29 @@
+{
+  "name": "q-mcp-manager",
+  "version": "1.0.0",
+  "description": "Web-based dashboard for managing Amazon Q MCP servers",
+  "main": "src/backend/server.js",
+  "scripts": {
+    "start": "node src/backend/server.js",
+    "dev": "nodemon src/backend/server.js",
+    "server": "./scripts/server.sh"
+  },
+  "keywords": [
+    "amazon-q",
+    "mcp",
+    "dashboard",
+    "management"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "2.8.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

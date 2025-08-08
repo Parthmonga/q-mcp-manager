@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Q - MCP Server Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous">
+</head>
+<body class="light-theme">
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-cogs"></i>
+                    <h1>Amazon Q - MCP Manager</h1>
+                </div>
+                <div class="header-controls">
+                    <!-- Search and Filter Bar -->
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search servers..." />
+                        <select id="filterSelect" class="filter-select">
+                            <option value="all">All Servers</option>
+                            <option value="enabled">Enabled Only</option>
+                            <option value="disabled">Disabled Only</option>
+                            <option value="docker">Docker Containers</option>
+                            <option value="python">Python Packages</option>
+                        </select>
+                    </div>
+                    <div class="header-actions">
+                        <!-- Theme Toggle -->
+                        <button id="themeToggle" class="btn btn-secondary theme-toggle" title="Toggle Dark/Light Theme">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <button id="refreshBtn" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                        <!-- Server Shutdown Button -->
+                        <button id="shutdownBtn" class="btn btn-danger shutdown-btn" title="Shutdown MCP Manager Server">
+                            <i class="fas fa-power-off"></i>
+                            Shutdown
+                        </button>
+                        <div class="status-indicator">
+                            <span class="status-dot" id="connectionStatus"></span>
+                            <span id="statusText">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Enhanced Statistics with Activity Counter -->
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalServers">0</h3>
+                        <p>Total Servers</p>
+                        <div class="stat-trend">
+                            <i class="fas fa-chart-line"></i>
+                            <span>All configured</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon enabled">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="enabledServers">0</h3>
+                        <p>Enabled</p>
+                        <div class="stat-trend enabled">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon disabled">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="disabledServers">0</h3>
+                        <p>Disabled</p>
+                        <div class="stat-trend disabled">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>Inactive</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon activity">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="recentChanges">0</h3>
+                        <p>Recent Changes</p>
+                        <div class="stat-trend">
+                            <i class="fas fa-clock"></i>
+                            <span>Last session</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-row">
+                <!-- Servers Section -->
+                <div class="servers-section">
+                    <div class="section-header">
+                        <h2>MCP Servers</h2>
+                        <!-- Enhanced Quick Actions Toolbar -->
+                        <div class="bulk-actions">
+                            <button id="enableAllBtn" class="btn btn-success" title="Enable all servers">
+                                <i class="fas fa-play"></i>
+                                Enable All
+                            </button>
+                            <button id="disableAllBtn" class="btn btn-danger" title="Disable all servers">
+                                <i class="fas fa-stop"></i>
+                                Disable All
+                            </button>
+                            <button id="exportConfigBtn" class="btn btn-secondary" title="Export configuration">
+                                <i class="fas fa-download"></i>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="servers-grid" id="serversGrid">
+                        <!-- Server cards will be dynamically generated here -->
+                    </div>
+                </div>
+
+                <!-- Activity Timeline Section -->
+                <div class="activity-section">
+                    <div class="section-header">
+                        <h2>
+                            <i class="fas fa-history"></i>
+                            Activity Timeline
+                        </h2>
+                        <button id="clearActivityBtn" class="btn btn-secondary btn-sm" title="Clear activity history">
+                            <i class="fas fa-trash"></i>
+                            Clear
+                        </button>
+                    </div>
+                    <div class="activity-timeline" id="activityTimeline">
+                        <div class="activity-item welcome">
+                            <div class="activity-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Dashboard Initialized</div>
+                                <div class="activity-description">MCP Manager ready to use</div>
+                                <div class="activity-time">Just now</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Enhanced Loading overlay with better animation -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <div class="spinner-ring"></div>
+                <p>Processing...</p>
+            </div>
+        </div>
+
+        <!-- Enhanced Toast notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+        
+        <!-- Confirmation Modal -->
+        <div class="confirmation-overlay" id="confirmationOverlay">
+            <div class="confirmation-modal">
+                <div class="confirmation-header">
+                    <div class="confirmation-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 id="confirmationTitle">Confirm Action</h3>
+                </div>
+                <div class="confirmation-body">
+                    <p id="confirmationMessage">Are you sure you want to proceed?</p>
+                    <div class="confirmation-details" id="confirmationDetails"></div>
+                </div>
+                <div class="confirmation-actions">
+                    <button id="confirmationCancel" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                    <button id="confirmationConfirm" class="btn btn-danger">
+                        <i class="fas fa-check"></i>
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shutdown Screen -->
+        <div class="shutdown-overlay" id="shutdownOverlay">
+            <div class="shutdown-content">
+                <div class="shutdown-animation">
+                    <div class="power-icon">
+                        <i class="fas fa-power-off"></i>
+                    </div>
+                    <div class="shutdown-rings">
+                        <div class="ring ring-1"></div>
+                        <div class="ring ring-2"></div>
+                        <div class="ring ring-3"></div>
+                    </div>
+                </div>
+                <div class="shutdown-text">
+                    <h2>Server Shutdown</h2>
+                    <p>MCP Manager server has been gracefully stopped.</p>
+                    <div class="shutdown-details">
+                        <div class="detail-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Configuration saved</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Connections closed</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Server stopped</span>
+                        </div>
+                    </div>
+                    <div class="shutdown-actions">
+                        <p class="restart-instruction">
+                            To restart the server, run:
+                        </p>
+                        <code class="restart-command">./server.sh start --background</code>
+                        <button id="closeTabBtn" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Close Tab
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

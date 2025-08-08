@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Manager - Server Launcher</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Animated Background */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 5s;
+        }
+
+        .shape:nth-child(3) {
+            width: 40px;
+            height: 40px;
+            top: 80%;
+            left: 70%;
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+            25% { transform: translateY(-20px) rotate(90deg); opacity: 1; }
+            50% { transform: translateY(-10px) rotate(180deg); opacity: 0.8; }
+            75% { transform: translateY(-30px) rotate(270deg); opacity: 0.9; }
+        }
+
+        /* Main Container */
+        .launcher-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 60px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .launcher-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #10b981, #667eea, #ef4444);
+            animation: rainbow 3s ease-in-out infinite;
+        }
+
+        @keyframes rainbow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Logo */
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #10b981, #667eea);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 20px;
+            animation: pulse-logo 3s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            animation: shine 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-logo {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffffff, #f0f9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        /* Status */
+        .status-section {
+            margin: 40px 0;
+        }
+
+        .status-indicator {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.2);
+            border: 3px solid #ef4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+            animation: pulse-status 2s ease-in-out infinite;
+        }
+
+        .status-indicator.checking {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.2);
+            animation: spin 1s linear infinite;
+        }
+
+        .status-indicator.online {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        @keyframes pulse-status {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+            50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(239, 68, 68, 0.5); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-indicator i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .status-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .status-description {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        /* Launch Button */
+        .launch-button {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 15px;
+            padding: 20px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin: 30px 0;
+            min-width: 200px;
+        }
+
+        .launch-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .launch-button:not(:disabled):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+        }
+
+        .launch-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .launch-button:hover::before {
+            left: 100%;
+        }
+
+        .launch-button i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* Progress */
+        .progress-section {
+            display: none;
+            margin: 30px 0;
+        }
+
+        .progress-text {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #667eea);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: progress-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes progress-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
+        }
+
+        .progress-steps {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Instructions */
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .instructions h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #f0f9ff;
+        }
+
+        .instructions ul {
+            text-align: left;
+            list-style: none;
+            padding: 0;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .instructions li::before {
+            content: '✨';
+            position: absolute;
+            left: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .launcher-container {
+                padding: 40px 20px;
+                margin: 20px;
+            }
+            
+            .logo h1 {
+                font-size: 2rem;
+            }
+            
+            .logo-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous">
+</head>
+<body>
+    <div class="background">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+    </div>
+
+    <div class="launcher-container">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <h1>MCP Manager</h1>
+            <p>One-Click Server Launcher</p>
+        </div>
+
+        <div class="status-section">
+            <div class="status-indicator" id="statusIndicator">
+                <i class="fas fa-power-off" id="statusIcon"></i>
+            </div>
+            <div class="status-text" id="statusText">Server Offline</div>
+            <div class="status-description" id="statusDescription">Ready to launch</div>
+        </div>
+
+        <button class="launch-button" id="launchButton">
+            <i class="fas fa-play"></i>
+            <span id="buttonText">Start Server & Open Dashboard</span>
+        </button>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-text" id="progressText">Starting server...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-steps" id="progressSteps">Initializing...</div>
+        </div>
+
+        <div class="instructions">
+            <h3>How it works:</h3>
+            <ul>
+                <li>Click the button above to start the MCP Manager server</li>
+                <li>The dashboard will automatically open in a new tab</li>
+                <li>Manage your MCP servers through the beautiful interface</li>
+                <li>No command line needed - everything in your browser!</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        class ServerLauncher {
+            constructor() {
+                this.serverUrl = 'http://localhost:3000';
+                this.isServerRunning = false;
+                this.checkInterval = null;
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.checkServerStatus();
+                this.startStatusMonitoring();
+            }
+
+            bindEvents() {
+                document.getElementById('launchButton').addEventListener('click', () => {
+                    if (this.isServerRunning) {
+                        this.openDashboard();
+                    } else {
+                        this.startServer();
+                    }
+                });
+            }
+
+            async checkServerStatus() {
+                const statusIndicator = document.getElementById('statusIndicator');
+                const statusIcon = document.getElementById('statusIcon');
+                const statusText = document.getElementById('statusText');
+                const statusDescription = document.getElementById('statusDescription');
+                const launchButton = document.getElementById('launchButton');
+                const buttonText = document.getElementById('buttonText');
+
+                // Show checking state
+                statusIndicator.className = 'status-indicator checking';
+                statusIcon.className = 'fas fa-spinner';
+                statusText.textContent = 'Checking...';
+                statusDescription.textContent = 'Detecting server status';
+
+                try {
+                    const response = await fetch(`${this.serverUrl}/api/health`, {
+                        method: 'GET',
+                        timeout: 3000
+                    });
+
+                    if (response.ok) {
+                        // Server is running
+                        this.isServerRunning = true;
+                        statusIndicator.className = 'status-indicator online';
+                        statusIcon.className = 'fas fa-check-circle';
+                        statusText.textContent = 'Server Online';
+                        statusDescription.textContent = 'Ready to open dashboard';
+                        buttonText.textContent = 'Open Dashboard';
+                        launchButton.innerHTML = '<i class="fas fa-external-link-alt"></i><span>Open Dashboard</span>';
+                    } else {
+                        throw new Error('Server not responding');
+                    }
+                } catch (error) {
+                    // Server is offline
+                    this.isServerRunning = false;
+                    statusIndicator.className = 'status-indicator';
+                    statusIcon.className = 'fas fa-power-off';
+                    statusText.textContent = 'Server Offline';
+                    statusDescription.textContent = 'Ready to launch';
+                    buttonText.textContent = 'Start Server & Open Dashboard';
+                    launchButton.innerHTML = '<i class="fas fa-play"></i><span>Start Server & Open Dashboard</span>';
+                }
+            }
+
+            startStatusMonitoring() {
+                // Check every 5 seconds
+                this.checkInterval = setInterval(() => {
+                    this.checkServerStatus();
+                }, 5000);
+            }
+
+            async startServer() {
+                const progressSection = document.getElementById('progressSection');
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                const progressSteps = document.getElementById('progressSteps');
+                const launchButton = document.getElementById('launchButton');
+
+                try {
+                    // Show progress
+                    progressSection.style.display = 'block';
+                    launchButton.disabled = true;
+                    
+                    // Simulate server startup process
+                    const steps = [
+                        { text: 'Starting server process...', progress: 20, step: 'Launching Node.js server' },
+                        { text: 'Loading configuration...', progress: 40, step: 'Reading MCP config file' },
+                        { text: 'Initializing API...', progress: 60, step: 'Setting up endpoints' },
+                        { text: 'Server ready!', progress: 80, step: 'Preparing dashboard' },
+                        { text: 'Opening dashboard...', progress: 100, step: 'Launching in browser' }
+                    ];
+
+                    for (let i = 0; i < steps.length; i++) {
+                        const step = steps[i];
+                        progressText.textContent = step.text;
+                        progressSteps.textContent = step.step;
+                        progressFill.style.width = step.progress + '%';
+                        
+                        if (i === 0) {
+                            // Actually start the server by executing the command
+                            await this.executeServerStart();
+                        }
+                        
+                        await this.sleep(1000);
+                        
+                        // Check if server is actually running
+                        if (i >= 2) {
+                            try {
+                                const response = await fetch(`${this.serverUrl}/api/health`);
+                                if (response.ok) {
+                                    // Server is running, skip to final steps
+                                    progressFill.style.width = '100%';
+                                    progressText.textContent = 'Server started successfully!';
+                                    progressSteps.textContent = 'Opening dashboard...';
+                                    break;
+                                }
+                            } catch (error) {
+                                // Continue waiting
+                            }
+                        }
+                    }
+
+                    // Wait a moment then open dashboard
+                    await this.sleep(1000);
+                    this.openDashboard();
+                    
+                    // Hide progress and update status
+                    progressSection.style.display = 'none';
+                    launchButton.disabled = false;
+                    await this.checkServerStatus();
+
+                } catch (error) {
+                    console.error('Error starting server:', error);
+                    progressSection.style.display = 'none';
+                    launchButton.disabled = false;
+                    alert('Failed to start server. Please try running: ./server.sh start --background');
+                }
+            }
+
+            async executeServerStart() {
+                // Since we can't directly execute shell commands from browser,
+                // we'll show instructions to the user
+                const userAgent = navigator.userAgent;
+                const isMac = userAgent.includes('Mac');
+                
+                if (isMac) {
+                    // Try to use the file:// protocol to open Terminal (this won't work in most browsers for security)
+                    // Instead, we'll show instructions
+                    this.showStartupInstructions();
+                } else {
+                    this.showStartupInstructions();
+                }
+            }
+
+            showStartupInstructions() {
+                const instructions = `
+To start the MCP Manager server, please run this command in Terminal:
+
+cd /Users/monparth/CascadeProjects/q-mcp-manager && ./server.sh start --background
+
+Then come back to this page and the dashboard will open automatically!
+
+Would you like to copy this command to clipboard?
+                `;
+                
+                if (confirm(instructions)) {
+                    // Copy to clipboard
+                    navigator.clipboard.writeText('cd /Users/monparth/CascadeProjects/q-mcp-manager && ./server.sh start --background').then(() => {
+                        alert('Command copied to clipboard! Paste it in Terminal and run it.');
+                    });
+                }
+            }
+
+            openDashboard() {
+                if (this.isServerRunning) {
+                    window.open(this.serverUrl, '_blank');
+                } else {
+                    alert('Server is not running yet. Please wait for it to start.');
+                }
+            }
+
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new ServerLauncher();
+        });
+    </script>
+</body>
+</html>

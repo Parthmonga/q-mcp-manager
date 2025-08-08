@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Manager - Mission Control</title>
+    <link rel="stylesheet" href="home-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous">
+</head>
+<body class="light-theme">
+    <div class="home-container">
+        <!-- Animated Background -->
+        <div class="background-animation">
+            <div class="floating-particles"></div>
+            <div class="grid-overlay"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="home-content">
+            <!-- Header -->
+            <header class="home-header">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>MCP Manager</h1>
+                        <p>Mission Control Center</p>
+                    </div>
+                </div>
+                <div class="theme-toggle-container">
+                    <button id="themeToggle" class="theme-toggle-btn" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Server Status Display -->
+            <div class="server-status-display">
+                <div class="status-ring">
+                    <div class="status-indicator" id="serverStatusIndicator">
+                        <div class="pulse-ring"></div>
+                        <div class="status-icon">
+                            <i class="fas fa-power-off" id="statusIcon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="status-text">
+                    <h2 id="serverStatusText">Server Offline</h2>
+                    <p id="serverStatusDescription">Ready to launch MCP Manager</p>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <div class="main-controls">
+                    <button id="startServerBtn" class="control-btn start-btn">
+                        <div class="btn-icon">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="btn-content">
+                            <span class="btn-title">Start Server</span>
+                            <span class="btn-subtitle">Launch MCP Manager</span>
+                        </div>
+                        <div class="btn-glow"></div>
+                    </button>
+
+                    <button id="stopServerBtn" class="control-btn stop-btn" disabled>
+                        <div class="btn-icon">
+                            <i class="fas fa-stop"></i>
+                        </div>
+                        <div class="btn-content">
+                            <span class="btn-title">Stop Server</span>
+                            <span class="btn-subtitle">Shutdown gracefully</span>
+                        </div>
+                        <div class="btn-glow"></div>
+                    </button>
+                </div>
+
+                <div class="secondary-controls">
+                    <button id="openDashboardBtn" class="secondary-btn" disabled>
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>Open Dashboard</span>
+                    </button>
+                    
+                    <button id="viewLogsBtn" class="secondary-btn" disabled>
+                        <i class="fas fa-file-alt"></i>
+                        <span>View Logs</span>
+                    </button>
+                    
+                    <button id="serverStatusBtn" class="secondary-btn">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Server Info</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Server Information Panel -->
+            <div class="info-panel">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Server Status</h3>
+                        <p id="serverInfo">Checking server status...</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Uptime</h3>
+                        <p id="uptimeInfo">Not running</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <div class="info-content">
+                        <h3>Dashboard URL</h3>
+                        <p id="dashboardUrl">http://localhost:3000</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="window.open('https://github.com/aws-samples/amazon-q-mcp-servers', '_blank')">
+                        <i class="fab fa-github"></i>
+                        <span>MCP Servers</span>
+                    </button>
+                    <button class="action-btn" onclick="window.open('https://docs.aws.amazon.com/amazonq/', '_blank')">
+                        <i class="fas fa-book"></i>
+                        <span>Documentation</span>
+                    </button>
+                    <button class="action-btn" id="configFileBtn">
+                        <i class="fas fa-cog"></i>
+                        <span>Config File</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <div class="loading-spinner">
+                    <div class="spinner-orbit">
+                        <div class="spinner-planet"></div>
+                    </div>
+                </div>
+                <h3 id="loadingText">Starting Server...</h3>
+                <p id="loadingDescription">Initializing MCP Manager</p>
+                <div class="loading-progress">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Viewer Modal -->
+        <div class="modal-overlay" id="logModal">
+            <div class="modal-content log-modal">
+                <div class="modal-header">
+                    <h3>Server Logs</h3>
+                    <button class="modal-close" id="closeLogModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="log-container" id="logContainer">
+                        <div class="log-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Loading logs...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="refreshLogsBtn" class="btn btn-secondary">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                    <button id="clearLogsBtn" class="btn btn-secondary">
+                        <i class="fas fa-trash"></i>
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <script src="home-script.js"></script>
+</body>
+</html>

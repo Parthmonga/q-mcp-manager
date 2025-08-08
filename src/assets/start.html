@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Manager - One-Click Start</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffffff, #f0f9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .status {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-indicator {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 3px solid #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.checking {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.2);
+            animation: spin 1s linear infinite;
+        }
+
+        .status-indicator.online {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .command-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .command-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #f0f9ff;
+        }
+
+        .command-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #10b981;
+            margin-bottom: 15px;
+            word-break: break-all;
+            user-select: all;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .command-box:hover {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 15px;
+            padding: 20px 40px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+        }
+
+        .start-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .start-button:hover::before {
+            left: 100%;
+        }
+
+        .or-divider {
+            margin: 20px 0;
+            position: relative;
+            opacity: 0.6;
+        }
+
+        .or-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .or-divider span {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .manual-section {
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .manual-section:hover {
+            opacity: 1;
+        }
+
+        .progress-section {
+            display: none;
+            margin: 30px 0;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-text {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #f0f9ff;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #667eea);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: progress-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes progress-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
+        }
+
+        .progress-steps {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        .copy-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .copy-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .instructions {
+            margin-top: 30px;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: #f0f9ff;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .success-message {
+            display: none;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #10b981;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .command-box {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🚀</div>
+        <h1>MCP Manager</h1>
+        <p class="subtitle">One-Click Server Launcher</p>
+
+        <div class="status">
+            <div class="status-indicator" id="statusIndicator">
+                <i class="fas fa-power-off" id="statusIcon"></i>
+            </div>
+            <div id="statusText">Checking server status...</div>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <strong>Server is running!</strong> Click "Open Dashboard" below.
+        </div>
+
+        <div class="command-section" id="commandSection">
+            <div class="command-title">🚀 One-Click Server Start</div>
+            <button class="start-button" id="startButton" onclick="startServer()">
+                <i class="fas fa-play"></i> Start Server & Open Dashboard
+            </button>
+            <div class="or-divider">
+                <span>or</span>
+            </div>
+            <div class="manual-section">
+                <div class="command-title">📋 Manual method (copy & paste in Terminal):</div>
+                <div class="command-box" id="commandBox" onclick="copyCommand()">
+                    cd /Users/monparth/CascadeProjects/q-mcp-manager && ./quick-start.sh
+                </div>
+                <button class="copy-button" onclick="copyCommand()">
+                    <i class="fas fa-copy"></i> Copy Command
+                </button>
+            </div>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-text" id="progressText">Starting server...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-steps" id="progressSteps">Initializing...</div>
+        </div>
+
+        <div class="instructions">
+            <h3>🎯 How to use:</h3>
+            <ol>
+                <li><strong>Click "Start Server & Open Dashboard"</strong> above</li>
+                <li><strong>If prompted</strong>, allow the browser to run the script</li>
+                <li><strong>Dashboard opens automatically!</strong> 🎉</li>
+            </ol>
+            <p style="margin-top: 15px; opacity: 0.8;">
+                <i class="fas fa-info-circle"></i>
+                If the one-click method doesn't work, use the manual copy-paste method below the button.
+            </p>
+            <p style="margin-top: 10px; opacity: 0.8;">
+                <i class="fas fa-shield-alt"></i>
+                This page automatically detects when the server starts and updates the interface.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let checkInterval;
+        let isServerRunning = false;
+
+        function checkServerStatus() {
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            const openButton = document.getElementById('openButton');
+            const successMessage = document.getElementById('successMessage');
+            const commandSection = document.getElementById('commandSection');
+
+            // Show checking state
+            statusIndicator.className = 'status-indicator checking';
+            statusIcon.className = 'fas fa-spinner';
+            statusText.textContent = 'Checking server status...';
+
+            fetch('http://localhost:3000/api/health', {
+                method: 'GET',
+                timeout: 3000
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Server is running
+                    isServerRunning = true;
+                    statusIndicator.className = 'status-indicator online';
+                    statusIcon.className = 'fas fa-check-circle';
+                    statusText.textContent = 'Server is running! 🎉';
+                    openButton.disabled = false;
+                    successMessage.style.display = 'block';
+                    commandSection.style.opacity = '0.5';
+                } else {
+                    throw new Error('Server not responding');
+                }
+            })
+            .catch(error => {
+                // Server is offline
+                isServerRunning = false;
+                statusIndicator.className = 'status-indicator';
+                statusIcon.className = 'fas fa-power-off';
+                statusText.textContent = 'Server is offline - use the command below to start';
+                openButton.disabled = true;
+                successMessage.style.display = 'none';
+                commandSection.style.opacity = '1';
+            });
+        }
+
+        function startServer() {
+            const startButton = document.getElementById('startButton');
+            const progressSection = document.getElementById('progressSection');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const progressSteps = document.getElementById('progressSteps');
+            const commandSection = document.getElementById('commandSection');
+
+            // Disable button and show progress
+            startButton.disabled = true;
+            startButton.textContent = ' Starting...';
+            const spinnerIcon = document.createElement('i');
+            spinnerIcon.className = 'fas fa-spinner fa-spin';
+            startButton.insertBefore(spinnerIcon, startButton.firstChild);
+            progressSection.style.display = 'block';
+            commandSection.style.opacity = '0.5';
+
+            // Create a custom URL scheme to trigger the script
+            // This will prompt the user to allow the action
+            const scriptPath = '/Users/monparth/CascadeProjects/q-mcp-manager/quick-start.sh';
+            
+            // Try to execute the script using different methods
+            executeScript(scriptPath)
+                .then(() => {
+                    // Success - start monitoring for server
+                    simulateProgress();
+                })
+                .catch((error) => {
+                    console.error('Failed to start server:', error);
+                    // Fallback to manual method
+                    showManualInstructions();
+                });
+        }
+
+        async function executeScript(scriptPath) {
+            // Method 1: Try using a custom protocol (requires user setup)
+            try {
+                window.location.href = `terminal://run?command=cd /Users/monparth/CascadeProjects/q-mcp-manager && ./quick-start.sh`;
+                return;
+            } catch (e) {
+                console.log('Terminal protocol not available');
+            }
+
+            // Method 2: Try using file protocol to open script
+            try {
+                const link = document.createElement('a');
+                link.href = `file://${scriptPath}`;
+                link.click();
+                return;
+            } catch (e) {
+                console.log('File protocol execution not available');
+            }
+
+            // Method 3: Show instructions to user
+            throw new Error('Cannot execute script directly from browser');
+        }
+
+        function showManualInstructions() {
+            const startButton = document.getElementById('startButton');
+            const progressSection = document.getElementById('progressSection');
+            const commandSection = document.getElementById('commandSection');
+
+            // Reset UI
+            startButton.disabled = false;
+            startButton.textContent = ' Start Server & Open Dashboard';
+            const playIcon = document.createElement('i');
+            playIcon.className = 'fas fa-play';
+            startButton.insertBefore(playIcon, startButton.firstChild);
+            progressSection.style.display = 'none';
+            commandSection.style.opacity = '1';
+
+            // Show instructions
+            alert(`🚀 Let's start the server!\n\n` +
+                  `For security reasons, browsers can't directly run scripts.\n\n` +
+                  `Please:\n` +
+                  `1. Click "Copy Command" below\n` +
+                  `2. Open Terminal (Cmd+Space → "Terminal")\n` +
+                  `3. Paste (Cmd+V) and press Enter\n` +
+                  `4. Dashboard will open automatically!\n\n` +
+                  `This is a one-time setup - after this, everything works from the browser!`);
+        }
+
+        async function simulateProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const progressSteps = document.getElementById('progressSteps');
+
+            const steps = [
+                { text: 'Executing startup script...', progress: 20, step: 'Running quick-start.sh' },
+                { text: 'Starting Node.js server...', progress: 40, step: 'Launching server process' },
+                { text: 'Loading configuration...', progress: 60, step: 'Reading MCP config' },
+                { text: 'Initializing dashboard...', progress: 80, step: 'Setting up interface' },
+                { text: 'Opening dashboard...', progress: 100, step: 'Launching in browser' }
+            ];
+
+            for (let i = 0; i < steps.length; i++) {
+                const step = steps[i];
+                progressText.textContent = step.text;
+                progressSteps.textContent = step.step;
+                progressFill.style.width = step.progress + '%';
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Check if server is actually running
+                if (i >= 2) {
+                    try {
+                        const response = await fetch('http://localhost:3000/api/health');
+                        if (response.ok) {
+                            // Server is running!
+                            progressFill.style.width = '100%';
+                            progressText.textContent = 'Server started successfully!';
+                            progressSteps.textContent = 'Opening dashboard...';
+                            
+                            // Open dashboard
+                            setTimeout(() => {
+                                window.open('http://localhost:3000', '_blank');
+                                resetUI();
+                            }, 1000);
+                            return;
+                        }
+                    } catch (error) {
+                        // Continue waiting
+                    }
+                }
+            }
+
+            // If we get here, server didn't start - show manual instructions
+            showManualInstructions();
+        }
+
+        function resetUI() {
+            const startButton = document.getElementById('startButton');
+            const progressSection = document.getElementById('progressSection');
+            const commandSection = document.getElementById('commandSection');
+
+            startButton.disabled = false;
+            startButton.textContent = ' Open Dashboard';
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-external-link-alt';
+            startButton.insertBefore(icon, startButton.firstChild);
+            progressSection.style.display = 'none';
+            commandSection.style.opacity = '1';
+
+            // Update button to just open dashboard since server is running
+            startButton.onclick = () => window.open('http://localhost:3000', '_blank');
+        }
+        
+        function copyCommand() {
+            const command = 'cd /Users/monparth/CascadeProjects/q-mcp-manager && ./quick-start.sh';
+            
+            navigator.clipboard.writeText(command).then(() => {
+                // Show feedback with safe DOM methods
+                const button = document.querySelector('.copy-button');
+                
+                // Store original content for restoration
+                const originalIcon = button.querySelector('i');
+                const originalText = button.textContent.trim().replace(originalIcon?.textContent || '', '').trim();
+                
+                // Clear button and add new content
+                button.textContent = ' Copied!';
+                const checkIcon = document.createElement('i');
+                checkIcon.className = 'fas fa-check';
+                button.insertBefore(checkIcon, button.firstChild);
+                button.style.background = 'linear-gradient(135deg, #059669, #047857)';
+                
+                setTimeout(() => {
+                    // Restore original button content
+                    button.textContent = ' ' + (originalText || 'Copy Command');
+                    const copyIcon = document.createElement('i');
+                    copyIcon.className = 'fas fa-copy';
+                    button.insertBefore(copyIcon, button.firstChild);
+                    button.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+                }, 2000);
+                
+                // Show instructions
+                alert('✅ Command copied!\n\n📋 Now:\n1. Open Terminal (Cmd+Space → "Terminal")\n2. Paste the command (Cmd+V)\n3. Press Enter\n4. Dashboard will open automatically!');
+            }).catch(err => {
+                // Fallback for older browsers
+                alert('Please copy this command manually:\n\ncd /Users/monparth/CascadeProjects/q-mcp-manager && ./quick-start.sh');
+            });
+        }
+
+        function openDashboard() {
+            if (isServerRunning) {
+                window.open('http://localhost:3000', '_blank');
+            } else {
+                alert('Server is not running yet. Please run the command first!');
+            }
+        }
+
+        // Start monitoring when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            checkServerStatus();
+            
+            // Check every 3 seconds
+            checkInterval = setInterval(checkServerStatus, 3000);
+        });
+
+        // Stop monitoring when page is hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (checkInterval) {
+                    clearInterval(checkInterval);
+                }
+            } else {
+                checkServerStatus();
+                checkInterval = setInterval(checkServerStatus, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
